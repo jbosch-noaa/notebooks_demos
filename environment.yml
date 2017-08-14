@@ -3,10 +3,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - icu=56
-  - libnetcdf=4.4.0
-  - python=3.5
-  - anaconda-navigator
+  - python=3.6
   - bagit
   - beautifulsoup4
   - bokeh
@@ -28,10 +25,10 @@ dependencies:
   - geos
   - gridgeo
   - gsw
-  - iris
+  - iris>=1.12
   - jsanimation
   - jupyter
-  - jupyter_client
+  - jupyter_contrib_nbextensions
   - matplotlib
   - mpld3
   - mplleaflet
@@ -71,5 +68,22 @@ dependencies:
   - statsmodels
   - sympy
   - thredds_crawler
+  - utide
   - xarray
   - xlrd
+  # R packages.
+  - r-dt
+  - r-ggfortify
+  - r-ggplot2
+  - r-gsw
+  - r-httr
+  - r-irkernel
+  - r-lubridate
+  - r-mapdata
+  - r-ncdf4
+  - r-oce
+  - r-rcolorbrewer
+  - r-reshape2
+  - r-sp
+  - r-xtractomatic
+  - r-xts

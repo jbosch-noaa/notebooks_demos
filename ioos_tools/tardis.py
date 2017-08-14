@@ -14,6 +14,10 @@ from iris.cube import CubeList
 from iris.coords import AuxCoord, DimCoord
 from iris.exceptions import CoordinateNotFoundError, CoordinateMultiDimError
 
+try:
+    from pandas.core.indexes.datetimes import DatetimeIndex  # pandas >=0.20
+except ImportError:
+    from pandas.tseries.index import DatetimeIndex  # pandas <0.20
 
 iris.FUTURE.netcdf_promote = True
 iris.FUTURE.netcdf_no_unlimited = True
@@ -494,23 +498,15 @@ def add_mesh(cube, url):
     return cube
 
 
-def _make_aux_coord(cube, axis='Y'):
-    """Make any given coordinate an Auxiliary Coordinate."""
-    coord = cube.coord(axis=axis)
-    cube.remove_coord(coord)
-    if cube.ndim == 2:
-        cube.add_aux_coord(coord, 1)
-    else:
-        cube.add_aux_coord(coord)
-    return cube
-
-
 def ensure_timeseries(cube):
     """Ensure that the cube is CF-timeSeries compliant."""
     if not cube.coord('time').shape == cube.shape[0]:
         cube.transpose()
-    _make_aux_coord(cube, axis='Y')
-    _make_aux_coord(cube, axis='X')
+        [
+            iris.util.demote_dim_coord_to_aux_coord(cube, dim)
+            for dim in cube.dim_coords
+            if 'time' not in dim.name()
+        ]
 
     cube.attributes.update({'featureType': 'timeSeries'})
     cube.coord("station_code").attributes = dict(cf_role='timeseries_id')
@@ -650,7 +646,7 @@ def _add_iris_coord(cube, name, points, dim, units=None, aux=False):
 
     """
     # Convert pandas datetime objects to python datetime obejcts.
-    if isinstance(points, pd.tseries.index.DatetimeIndex):
+    if isinstance(points, DatetimeIndex):
         points = points.to_pydatetime()
 
     # Convert datetime objects to Iris' current datetime representation.
